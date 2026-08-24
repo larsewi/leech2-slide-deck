@@ -1,0 +1,26 @@
+\documentclass{beamer}
+
+\usepackage{graphicx}
+
+\title{Ship the changes, not the table, with leech2}
+\author{Lars Erik Wik}
+\institute{Northern.tech}
+\date{2026}
+\titlegraphic{\includegraphics[height=2.5cm]{logo.png}}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{What is leech2?}
+Tracks table changes and produces small patches that can be converted to SQL queries.
+\begin{itemize}
+\item Computes deltas between tables and snap shots
+\item Stores deltas as linked blocks
+\item Consolidates blocks into a patch
+\item Converts patches into SQL statements
+\end{itemize}
+
+\end{frame}
+\end{document}
