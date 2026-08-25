@@ -1,6 +1,7 @@
 \documentclass{beamer}
 
 \usepackage{graphicx}
+\usetheme{Madrid}
 
 \title{Ship the changes, not the table, with leech2}
 \author{Lars Erik Wik}
@@ -14,8 +15,8 @@
 
 \begin{frame}
 \frametitle{What is leech2?}
-Tracks changes to tables and turns them into small patches you can apply to a
-database.
+Tracks changes to tables and turns them into small patches that can be applied
+to a database.
 \begin{itemize}
 \item Computes deltas between tables and snap shots
 \item Stores deltas as linked blocks
@@ -31,12 +32,8 @@ table and a config file telling leech2 how to interpret it.
 \begin{verbatim}
 $ lch init
 Initialized ./.leech2
-$ tree .leech2/
-.leech2/
-├── config.toml
-└── products.csv
-
-1 directory, 2 files
+$ ls .leech2/
+config.toml  products.csv
 \end{verbatim}
 \end{frame}
 
@@ -48,7 +45,9 @@ The leech2 config file can contain:
 \item Table definitions
 \item Paths to drop-in fragments
 \end{itemize}
+\begin{block}{Note}
 Both JSON and TOML syntax is supported.
+\end{block}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -61,33 +60,28 @@ The \lstinline{lch block create} command:
 \begin{verbatim}
 $ lch block create
 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
-$ tree .leech2/state/
-.leech2/state/
-├── 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
-├── HEAD
-└── STATE
-
-1 directory, 3 files
+$ ls .leech2/state/
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786  HEAD  STATE
 \end{verbatim}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{The block files}
-Blocks are content-addressed: the name is the SHA-1 digest of the contents. Each
-block contain a:
+Blocks are content-addressed; the name is the SHA-1 digest of the contents.
+Each block contains:
 \begin{itemize}
 \item Reference to its predecessor
 \item Creation timestamp
-\item And a payload
+\item Payload
 \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{The first block}
-The first block always contain a:
+The first block always contains:
 \begin{itemize}
 \item Reference to the genesis block
-\item And an empty payload
+\item Empty payload
 \end{itemize}
 \begin{verbatim}
 $ lch block show
@@ -95,13 +89,14 @@ block 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
 Block:
   Parent: 0000000000000000000000000000000000000000
   Created: 2026-08-25 10:32:44 UTC
-  Payload (0 tables):
+  Payload (0 tables)
 \end{verbatim}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{The HEAD file}
-The HEAD is a plain text file pointing to the last block on the chain.
+HEAD is a plain text file that points to the last block in the chain. It is
+updated whenever a new block is added.
 
 \begin{verbatim}
 $ cat .leech2/state/HEAD
@@ -111,8 +106,7 @@ $ cat .leech2/state/HEAD
 
 \begin{frame}[fragile]
 \frametitle{The STATE file}
-The STATE file contains a snap shot of the current state when the last block was
-created.
+STATE holds snapshots of the tables as of the most recent block.
 \begin{verbatim}
 $ lch state show
 State (1 tables):
@@ -120,6 +114,50 @@ State (1 tables):
     (2) "Mouse", 34.5
     (3) "Monitor", 249.95
     (1) "Keyboard", 79.99
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Creating a patch}
+The \lstinline{lch patch create} command consolidates the changes and stores
+them in the PATCH file.
+\begin{verbatim}
+$ lch patch create
+$ ls .leech2/state/
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786  PATCH  STATS
+HEAD                                      STATE
+\end{verbatim}
+\begin{block}{Note}
+Performance statistics are tracked in the STATS file.
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The PATCH file}
+The patches contain:
+\begin{itemize}
+\item Reference to the block at the head of the chain
+\item Timestamp of the block at the head of the chain
+\item Number of consolidated blocks
+\item Per table states or deltas
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The first patch}
+The first patch contains full table contents rather than deltas, since there is
+no earlier state to diff against.
+\begin{verbatim}
+$ lch patch show
+Patch:
+  Head: 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+  Created: 2026-08-25 10:32:44 UTC
+  Blocks: 0
+  States (1):
+    'products' [id, name, price]
+      (2) "Mouse", 34.5
+      (3) "Monitor", 249.95
+      (1) "Keyboard", 79.99
 \end{verbatim}
 \end{frame}
 
