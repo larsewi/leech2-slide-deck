@@ -148,8 +148,8 @@ uses whichever is smaller.
 
 \begin{frame}[fragile]
 \frametitle{The first patch}
-The first patch contains full table contents rather than deltas, since there is
-no earlier state to diff against.
+The first patch contains only full table contents, since there is no earlier
+state to diff against.
 \begin{verbatim}
 $ lch patch show
 Patch:
@@ -162,6 +162,25 @@ Patch:
       (3) "Monitor", 249.95
       (1) "Keyboard", 79.99
 \end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Rendering the patch as SQL}
+\texttt{lch patch sql} renders the patch as SQL statements that replicate the
+changes in the database.
+\begin{verbatim}
+$ lch patch sql
+TRUNCATE "products";
+INSERT INTO "products" ("id", "name", "price")
+VALUES (2, 'Mouse', 34.5);
+INSERT INTO "products" ("id", "name", "price")
+VALUES (3, 'Monitor', 249.95);
+INSERT INTO "products" ("id", "name", "price")
+VALUES (1, 'Keyboard', 79.99);
+\end{verbatim}
+\begin{block}{Note}
+Since this is the first patch, the SQL rebuilds the table from scratch.
+\end{block}
 \end{frame}
 
 \end{document}
