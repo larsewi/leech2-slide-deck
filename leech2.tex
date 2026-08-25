@@ -14,13 +14,113 @@
 
 \begin{frame}
 \frametitle{What is leech2?}
-Tracks table changes and produces small patches that can be converted to SQL queries.
+Tracks changes to tables and turns them into small patches you can apply to a
+database.
 \begin{itemize}
 \item Computes deltas between tables and snap shots
 \item Stores deltas as linked blocks
 \item Consolidates blocks into a patch
 \item Converts patches into SQL statements
 \end{itemize}
-
 \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Initializing a project}
+The \lstinline{lch init} command creates a work directory with a starter CSV
+table and a config file telling leech2 how to interpret it.
+\begin{verbatim}
+$ lch init
+Initialized ./.leech2
+$ tree .leech2/
+.leech2/
+├── config.toml
+└── products.csv
+
+1 directory, 2 files
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+\frametitle{The config file}
+The leech2 config file can contain:
+\begin{itemize}
+\item Configuration options
+\item Table definitions
+\item Paths to drop-in fragments
+\end{itemize}
+Both JSON and TOML syntax is supported.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Creating the first block}
+The \lstinline{lch block create} command:
+\begin{itemize}
+\item Creates a new block
+\item Records the current state
+\end{itemize}
+\begin{verbatim}
+$ lch block create
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+$ tree .leech2/state/
+.leech2/state/
+├── 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+├── HEAD
+└── STATE
+
+1 directory, 3 files
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The block files}
+Blocks are content-addressed: the name is the SHA-1 digest of the contents. Each
+block contain a:
+\begin{itemize}
+\item Reference to its predecessor
+\item Creation timestamp
+\item And a payload
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The first block}
+The first block always contain a:
+\begin{itemize}
+\item Reference to the genesis block
+\item And an empty payload
+\end{itemize}
+\begin{verbatim}
+$ lch block show
+block 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+Block:
+  Parent: 0000000000000000000000000000000000000000
+  Created: 2026-08-25 10:32:44 UTC
+  Payload (0 tables):
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The HEAD file}
+The HEAD is a plain text file pointing to the last block on the chain.
+
+\begin{verbatim}
+$ cat .leech2/state/HEAD
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The STATE file}
+The STATE file contains a snap shot of the current state when the last block was
+created.
+\begin{verbatim}
+$ lch state show
+State (1 tables):
+  'products' [id, name, price]
+    (2) "Mouse", 34.5
+    (3) "Monitor", 249.95
+    (1) "Keyboard", 79.99
+\end{verbatim}
+\end{frame}
+
 \end{document}
