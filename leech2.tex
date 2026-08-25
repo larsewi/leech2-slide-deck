@@ -27,7 +27,7 @@ to a database.
 
 \begin{frame}[fragile]
 \frametitle{Initializing a project}
-The \lstinline{lch init} command creates a work directory with a starter CSV
+The \texttt{lch init} command creates a work directory with a starter CSV
 table and a config file telling leech2 how to interpret it.
 \begin{verbatim}
 $ lch init
@@ -52,7 +52,7 @@ Both JSON and TOML syntax is supported.
 
 \begin{frame}[fragile]
 \frametitle{Creating the first block}
-The \lstinline{lch block create} command:
+The \texttt{lch block create} command:
 \begin{itemize}
 \item Creates a new block
 \item Records the current state
@@ -94,9 +94,9 @@ Block:
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{The HEAD file}
-HEAD is a plain text file that points to the last block in the chain. It is
-updated whenever a new block is added.
+\frametitle{The \texttt{HEAD} file}
+\texttt{HEAD} is a plain text file that points to the last block in the chain
+It is updated whenever a new block is added.
 
 \begin{verbatim}
 $ cat .leech2/state/HEAD
@@ -105,8 +105,8 @@ $ cat .leech2/state/HEAD
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{The STATE file}
-STATE holds snapshots of the tables as of the most recent block.
+\frametitle{The \texttt{STATE} file}
+\texttt{STATE} holds snapshots of the tables as of the most recent block.
 \begin{verbatim}
 $ lch state show
 State (1 tables):
@@ -119,8 +119,8 @@ State (1 tables):
 
 \begin{frame}[fragile]
 \frametitle{Creating a patch}
-The \lstinline{lch patch create} command consolidates the changes and stores
-them in the PATCH file.
+The \texttt{lch patch create} command consolidates the changes and stores them
+in the \texttt{PATCH} file.
 \begin{verbatim}
 $ lch patch create
 $ ls .leech2/state/
@@ -128,19 +128,22 @@ $ ls .leech2/state/
 HEAD                                      STATE
 \end{verbatim}
 \begin{block}{Note}
-Performance statistics are tracked in the STATS file.
+Performance statistics are tracked in the \texttt{STATS} file.
 \end{block}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{The PATCH file}
+\frametitle{The \texttt{PATCH} file}
 The patches contain:
 \begin{itemize}
-\item Reference to the block at the head of the chain
-\item Timestamp of the block at the head of the chain
+\item Reference and timestamp of the block at the head of the chain
 \item Number of consolidated blocks
-\item Per table states or deltas
+\item Full table contents or deltas
 \end{itemize}
+\begin{block}{Note}
+A patch may contain both deltas and full table contents. For each table, leech2
+uses whichever is smaller.
+\end{block}
 \end{frame}
 
 \begin{frame}[fragile]
