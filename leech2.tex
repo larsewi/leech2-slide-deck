@@ -183,4 +183,21 @@ Since this is the first patch, the SQL rebuilds the table from scratch.
 \end{block}
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Marking the patch as applied}
+\texttt{lch patch applied} records the last successful patch in the
+\texttt{REPORTED} file. Next patch will contain the delta from the block
+referenced to by \texttt{HEAD} to \textit{(not including)} \texttt{REPORTED}.
+\begin{verbatim}
+$ lch patch applied
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+$ cat .leech2/state/REPORTED
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+\end{verbatim}
+\begin{block}{Note}
+Use \texttt{lch patch failed} to mark the patch as failed. This forces full
+table patches at next patch generation.
+\end{block}
+\end{frame}
+
 \end{document}
