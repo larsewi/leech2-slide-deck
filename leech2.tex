@@ -200,4 +200,61 @@ table patches at next patch generation.
 \end{block}
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Recording changes}
+Let's modify the price of a computer mouse from 34.50 to 29.99 and record the
+change.
+\begin{verbatim}
+$ cat .leech2/products.csv
+id,name,price
+1,Keyboard,79.99
+2,Mouse,34.50
+3,Monitor,249.95
+$ sed -i 's/34.50/29.99/' .leech2/products.csv
+$ lch block create
+f75349613c3136219cca647565ad7c0c65051ede
+$ lch patch create
+f75349613c3136219cca647565ad7c0c65051ede
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Recording changes}
+\begin{verbatim}
+$ lch block show
+block f75349613c3136219cca647565ad7c0c65051ede
+Block:
+  Parent: 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
+  Created: 2026-08-25 16:38:27 UTC
+  Payload (1 tables):
+    'products' [id, name, price]
+      Updates (1):
+        (2) _, 34.5 -> 29.99
+\end{verbatim}
+\begin{block}{Note}
+The \texttt{name} column us stripped because it's irrelevant for block
+consolidation. However, the previous value of \texttt{price} is relevant.
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Recording changes}
+\begin{verbatim}
+$ lch patch create
+f75349613c3136219cca647565ad7c0c65051ede
+Patch:
+  Head: f75349613c3136219cca647565ad7c0c65051ede
+  Created: 2026-08-25 16:38:27 UTC
+  Blocks: 1
+  Deltas (1):
+    'products' [id, name, price]
+      Updates (1):
+        (2) _, 29.99
+\end{verbatim}
+\begin{block}{Note}
+The previous value of \texttt{price} was relevant for block consolidation, but
+is not relevant for patches.
+\end{block}
+\end{frame}
+
 \end{document}
