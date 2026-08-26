@@ -1,6 +1,5 @@
 \documentclass{beamer}
 
-\usepackage{graphicx}
 \usetheme{Madrid}
 
 \usepackage{tikz}
@@ -18,9 +17,9 @@
   block/.style={draw, rounded corners},
   arr/.style={-{Stealth[length=2mm]}, thick},
 ]
-  \node[block] (a) {3294a7e...};
-  \node[block, right=5mm of a] (b) {8f1d02b...};
-  \node[block, right=5mm of b] (c) {3294a7...};
+  \node[block] (a) {f753496...};
+  \node[block, right=5mm of a] (b) {c4b22f2...};
+  \node[block, right=5mm of b] (c) {3294a7e...};
   \draw[arr] (b) -- (a);
   \draw[arr] (c) -- (b);
   \node[below=5mm of c] (head) {HEAD};
@@ -71,7 +70,7 @@ The leech2 config file can contain:
 \end{itemize}
 \bigskip
 \begin{block}{Note}
-Both JSON and TOML syntax is supported.
+Both JSON and TOML syntax are supported.
 \end{block}
 \end{frame}
 
@@ -91,7 +90,7 @@ $ ls .leech2/state/
 \end{verbatim}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
 \frametitle{The block files}
 Blocks are content-addressed; the name is the SHA-1 digest of the contents.
 Each block contains:
@@ -114,7 +113,6 @@ The first block always contains:
 \medskip
 \begin{verbatim}
 $ lch block show
-block 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
 Block:
   Parent: 0000000000000000000000000000000000000000
   Created: 2026-08-25 10:32:44 UTC
@@ -156,6 +154,7 @@ The \texttt{lch patch create} command consolidates the changes and stores them
 in the \texttt{PATCH} file.
 \begin{verbatim}
 $ lch patch create
+3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
 $ ls .leech2/state/
 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786  PATCH  STATS
 HEAD                                      STATE
@@ -165,7 +164,7 @@ Performance statistics are tracked in the \texttt{STATS} file.
 \end{block}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
 \frametitle{The \texttt{PATCH} file}
 The patches contain:
 \begin{itemize}
@@ -225,8 +224,8 @@ $ cat .leech2/state/REPORTED
 3294a7ec4d6f4bdb38c05fd94f0a1a8c6432f786
 \end{verbatim}
 \begin{block}{Note}
-Next patch will contain the consolidated data from \texttt{HEAD} to
-\texttt{REPORTED} (exclusive).
+Next patch will contain the consolidated data from \texttt{REPORTED} (exclusive) to
+\texttt{HEAD}.
 \end{block}
 \end{frame}
 
@@ -247,7 +246,7 @@ Would have removed './.leech2/state/REPORTED'
 
 \begin{frame}[fragile]
 \frametitle{Recording changes}
-Let's change the mouse's prize from 34.50 to 29.99 and record it.
+Let's change the mouse's price from 34.50 to 29.99 and record it.
 \begin{verbatim}
 $ cat .leech2/products.csv
 id,name,price
@@ -278,7 +277,7 @@ Block:
         (2) _, 34.5 -> 29.99
 \end{verbatim}
 \begin{block}{Note}
-The \texttt{name} column us stripped because it's irrelevant for block
+The \texttt{name} column is stripped because it's irrelevant for block
 consolidation. However, the previous value of \texttt{price} is relevant.
 \end{block}
 \end{frame}
@@ -480,10 +479,10 @@ Rule & Parent & Child & Result \\
 \end{tabular}
 \end{table}
 \begin{example}
-A \texttt{delete} followed by an \texttt{insert} cancels out — the net effect is
-no change at all. However, if the inserted value differs from the deleted one,
-the pair collapses into a single \texttt{update} from the deleted value to the
-inserted one.
+A \texttt{delete} followed by an \texttt{insert} cancels out -- the net effect
+is no change at all. However, if the inserted value differs from the deleted
+one, the pair collapses into a single \texttt{update} from the deleted value to
+the inserted one.
 \end{example}
 \end{frame}
 
