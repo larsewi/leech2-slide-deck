@@ -398,4 +398,156 @@ c4b22f2680f917bff7a61ad9f5463b52b7ee0861
 \end{verbatim}
 \end{frame}
 
+\begin{frame}
+\frametitle{Block consolidation}
+Every block in \texttt{REPORTED..HEAD} is merged into a single patch.
+\begin{itemize}
+\item 15 merging rules
+\item \texttt{insert} and \texttt{delete} carry a primary key and values
+\item \texttt{update} additionally carries the previous value
+\item Never more than two blocks in memory at a time
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{No overlapping key}
+When a key appears in one of two subsequent blocks, there is no conflict. The
+operation passes through to the result unchanged.
+\vfill
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+1  &                 & \texttt{insert} & \texttt{insert} \\
+2  &                 & \texttt{delete} & \texttt{delete} \\
+3  &                 & \texttt{update} & \texttt{update} \\
+4  & \texttt{insert} &                 & \texttt{insert} \\
+8  & \texttt{delete} &                 & \texttt{delete} \\
+12 & \texttt{update} &                 & \texttt{update}
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Impossible combinations}
+Some rules exist solely to detect logical errors.
+\vfill
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+5  & \texttt{insert} & \texttt{insert} & \texttt{error} \\
+10 & \texttt{delete} & \texttt{delete} & \texttt{error} \\
+11 & \texttt{delete} & \texttt{update} & \texttt{error} \\
+13 & \texttt{update} & \texttt{insert} & \texttt{error}
+\end{tabular}
+\end{table}
+\vfill
+\begin{example}
+You cannot \texttt{insert} something that already exists (rules 5, 13),
+\texttt{delete} something that is already gone (rule 10), or \texttt{update}
+something that has been deleted (rule 11).
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{\texttt{insert} then \texttt{delete}}
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+6a & \texttt{insert} & \texttt{delete} &                \\
+6b & \texttt{insert} & \texttt{delete} & \texttt{error} \\
+\end{tabular}
+\end{table}
+\vfill
+\begin{example}
+An \texttt{insert} followed by a \texttt{delete} cancels out -- the net effect
+is the same as never inserting the row. However, if the deleted value differs
+from the inserted one, then this is a logical error.
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{\texttt{insert} then \texttt{update}}
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+7a & \texttt{insert} & \texttt{update} & \texttt{insert} \\
+7b & \texttt{insert} & \texttt{update} & \texttt{error}  \\
+\end{tabular}
+\end{table}
+\vfill
+\begin{example}
+An \texttt{insert} followed by an \texttt{update} collapses into a single
+\texttt{insert} carrying the updated value. However, if the inserted value differs
+from the update's old value, then this is a logical error.
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{\texttt{delete} then \texttt{insert}}
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+9a & \texttt{delete} & \texttt{insert} &                 \\
+9b & \texttt{delete} & \texttt{insert} & \texttt{update} \\
+\end{tabular}
+\end{table}
+\vfill
+\begin{example}
+A \texttt{delete} followed by an \texttt{insert} cancels out — the net effect is
+no change at all. However, if the inserted value differs from the deleted one,
+the pair collapses into a single \texttt{update} from the deleted value to the
+inserted one.
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{\texttt{update} then \texttt{delete}}
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+14a & \texttt{update} & \texttt{delete} & \texttt{delete} \\
+14b & \texttt{update} & \texttt{delete} & \texttt{error}  \\
+\end{tabular}
+\end{table}
+\vfill
+\begin{example}
+An \texttt{update} followed by a \texttt{delete} collapses into a single
+\texttt{delete} carrying the update's old value. But if the deleted value
+differs from the update's new value, then this is a logical error.
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{\texttt{update} then \texttt{update}}
+\begin{table}
+\centering
+\begin{tabular}{clll}
+Rule & Parent & Child & Result \\
+\hline
+15a & \texttt{update} & \texttt{update} & \texttt{update} \\
+15b & \texttt{update} & \texttt{update} &                 \\
+15c & \texttt{update} & \texttt{update} & \texttt{error}  \\
+\end{tabular}
+\end{table}
+\vfill
+\begin{example}
+Two stacked \texttt{update} operations collapse into a single \texttt{update}
+from the parent's old value to the child's new value. If those two values are
+equal, the pair cancels out. However, if intermediate values differ, then this
+is a logical error.
+\end{example}
+\end{frame}
+
 \end{document}
